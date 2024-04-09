@@ -1,0 +1,32 @@
+# 작업 내용
+name: Deploy nextjs-admin-boilerplate
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - develop
+
+jobs:
+  deployment:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: |-
+      if [ "${GITHUB_REF##*/}" = "main" ]; then
+        Production;
+      else
+        Preview;
+      fi
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Deploy
+        run: |-
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            curl ${{ secrets.VERCEL_DEPLOY_MAIN_HOOKS }};
+          elif [ "${GITHUB_REF##*/}" = "staging" ]; then
+            curl ${{ secrets.VERCEL_DEPLOY_STAGING_HOOKS }};
+          else
+            curl ${{ secrets.VERCEL_DEPLOY_DEVELOP_HOOKS }};
+          fi
